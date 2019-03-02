@@ -60,26 +60,26 @@ class GenerateTFRecord:
         #vertex_text=np.chararray(shape=(self.num_of_max_vertices,self.max_length_of_word))
         #vertex_text[:no_of_words,:]=list(map(self.str_to_chars, words_arr))
         vertex_text=words_arr+[""]*(self.num_of_max_vertices-len(words_arr))
+        vertex_text = np.zeros(self.max_length_of_word, dtype=np.int64)
 
+        # print("Max height", img_height)
+        # print("Max width", img_width)
+        # print("Len global features", 3)
+        # print("Max vertices", self.num_of_max_vertices)
+        # print("Data dims", 4)
+        # print("Max words length", self.max_length_of_word)
 
+        feature = dict()
+        feature['image'] = tf.train.Feature(float_list=tf.train.FloatList(value=im.astype(np.float32).flatten()))
+        feature['global_features'] = tf.train.Feature(float_list=tf.train.FloatList(value=np.array([img_height, img_width,no_of_words]).astype(np.float32).flatten()))
+        feature['vertex_features'] = tf.train.Feature(float_list=tf.train.FloatList(value=vertex_features.astype(np.float32).flatten()))
 
-        all_features = tf.train.Features(feature={'image': tf.train.Feature(int64_list=tf.train.Int64List(value=im.reshape(-1))),
-                                          'global_features': tf.train.Feature(
-                                              int64_list=tf.train.Int64List(value=[img_height, img_width,no_of_words])),
-                                          'adjacency_matrix_cells': tf.train.Feature(
-                                              int64_list=tf.train.Int64List(value=cellmatrix.reshape(-1))),
-                                          'adjacency_matrix_cols': tf.train.Feature(
-                                              int64_list=tf.train.Int64List(value=colmatrix.reshape(-1))),
-                                          'adjacency_matrix_rows': tf.train.Feature(
-                                              int64_list=tf.train.Int64List(value=rowmatrix.reshape(-1))),
-                                          'vertex_features': tf.train.Feature(
-                                              int64_list=tf.train.Int64List(value=vertex_features.reshape(-1))),
-                                          'vertex_text': tf.train.Feature(
-                                              bytes_list=tf.train.BytesList(value=[val.encode('utf-8') for val in vertex_text]))
-                                          })
-        # all_features = tf.train.Features(feature={'vertex_text': tf.train.Feature(bytes_list=tf.train.BytesList(value=[val.encode('utf-8') for val in vertex_text]))
-        #                                   })
-        # features_list=tf.train.FeatureLists(feature_list={'words_data':tf.train.FeatureList(feature=table_features)})
+        feature['adjacency_matrix_cells'] = tf.train.Feature(int64_list=tf.train.Int64List(value=cellmatrix.astype(np.int64).flatten()))
+        feature['adjacency_matrix_cols'] = tf.train.Feature(int64_list=tf.train.Int64List(value=colmatrix.astype(np.int64).flatten()))
+        feature['adjacency_matrix_rows'] = tf.train.Feature(int64_list=tf.train.Int64List(value=rowmatrix.astype(np.int64).flatten()))
+        feature['vertex_text'] = tf.train.Feature(int64_list=tf.train.Int64List(value=vertex_text.astype(np.int64).flatten()))
+
+        all_features = tf.train.Features(feature=feature)
 
         seq_ex = tf.train.Example(features=all_features)
         return seq_ex
