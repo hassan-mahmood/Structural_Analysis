@@ -270,7 +270,7 @@ class GenerateTFRecord:
             data_arr,all_table_categories = self.generate_tables(driver, filesize, output_file_name)
             if(data_arr is not None):
                 if(len(data_arr)==filesize):
-                    with tf.io.TFRecordWriter(os.path.join(self.outtfpath,output_file_name),options=options) as writer:
+                    with tf.io.TFRecordWriter(os.path.join(self.outtfpath,output_file_name+".gz"),options=options) as writer:
                         try:
                             for imgindex,subarr in enumerate(data_arr):
                                 arr=subarr[0]
